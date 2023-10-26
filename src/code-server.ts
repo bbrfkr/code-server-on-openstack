@@ -53,6 +53,17 @@ export class CodeServerStack extends TerraformStack {
       # install nvidia driver
       apt -y install nvidia-driver-535
 
+      # install cli tools
+      apt -y install jq jsonnet
+
+      # install cuda toolkit
+      wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-ubuntu2204.pin
+      mv cuda-ubuntu2204.pin /etc/apt/preferences.d/cuda-repository-pin-600
+      wget https://developer.download.nvidia.com/compute/cuda/12.2.2/local_installers/cuda-repo-ubuntu2204-12-2-local_12.2.2-535.104.05-1_amd64.deb
+      dpkg -i cuda-repo-ubuntu2204-12-2-local_12.2.2-535.104.05-1_amd64.deb && rm -f cuda-repo-ubuntu2204-12-2-local_12.2.2-535.104.05-1_amd64.deb 
+      cp /var/cuda-repo-ubuntu2204-12-2-local/cuda-*-keyring.gpg /usr/share/keyrings/
+      apt-get update && apt-get -y install cuda
+
       # install nvidia container driver
       curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | apt-key add -
       export distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
@@ -79,12 +90,13 @@ export class CodeServerStack extends TerraformStack {
         {
           uuid: "ac0d794a-2067-43ed-b726-af10ae0814b5",
           sourceType: "image",
-          destinationType: "local",
+          destinationType: "volume",
+          volumeSize: 100,
           bootIndex: 0,
           deleteOnTermination: true,
         },
         {
-          uuid: "15a69af7-95a3-4496-9fd1-2b54426e0e35",
+          uuid: "a3237394-73b5-401e-8c36-933d303f4b6e",
           sourceType: "volume",
           destinationType: "volume",
           bootIndex: 1,
